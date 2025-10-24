@@ -2,10 +2,10 @@ const AWS = require("aws-sdk");
 AWS.config.update({ region: "us-east-2" });
 const utils = require("./utils/buildResponse");
 const bcrypt = require("bcryptjs");
+const { login } = require("./login");
 
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
-// const userTable = "ChaneUsers";
-let userTable;
+let userTable = "CanvasUsers";
 
 async function register(userInfo) {
   const name = userInfo.name;
@@ -13,7 +13,6 @@ async function register(userInfo) {
   const authorized = userInfo.authorized;
   const username = userInfo.username;
   const password = userInfo.password;
-  userTable = userInfo.table;
 
   if (!username || !password || !email || !password || !name || !userTable) {
     return utils.buildResponse(401, {
@@ -44,7 +43,13 @@ async function register(userInfo) {
     });
   }
 
-  return utils.buildResponse(200, { username: username });
+  const loginRequest = {
+    username: user.username,
+    password: userInfo.password,
+    table: userTable,
+  };
+
+  return await login(loginRequest);
 }
 
 async function getUser(username) {

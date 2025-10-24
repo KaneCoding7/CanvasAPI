@@ -2,16 +2,16 @@ const AWS = require("aws-sdk");
 AWS.config.update({ region: "us-east-2" });
 const utils = require("./utils/buildResponse");
 const bcrypt = require("bcryptjs");
-const auth = require("./auth");
+const { generateAccessToken, generateRefreshToken } = require("./auth");
 
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
-// const userTable = "ChaneUsers";
-let userTable;
+
+const refreshTokenTable = "CanvasRefreshTokens";
+let userTable = "CanvasUsers";
 
 async function login(user) {
   const username = user.username;
   const password = user.password;
-  userTable = user.table;
 
   if (!user || !username || !password || !userTable) {
     return utils.buildResponse(401, {
@@ -42,15 +42,39 @@ async function login(user) {
   }
 
   const userInfo = {
+    project: "canvas",
     username: dynamoUser.username,
     name: dynamoUser.name,
   };
 
-  const token = auth.generateToken(userInfo);
+  const accessToken = generateAccessToken(userInfo);
+  const refreshToken = generateRefreshToken();
+  const expiresAt = Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60;
+
+  const refreshTokenParams = {
+    TableName: refreshTokenTable,
+    Item: {
+      token: refreshToken,
+      userId: dynamoUser.username,
+      expiresAt: expiresAt,
+    },
+  };
+
+  try {
+    await dynamoDB.put(refreshTokenParams).promise();
+  } catch (dbError) {
+    console.error("Error saving refresh token:", dbError);
+    return utils.buildResponse(500, {
+      message: "Internal server error during login",
+    });
+  }
+
   const response = {
     user: userInfo,
-    token: token,
+    accessToken: accessToken,
+    refreshToken: refreshToken,
   };
+
   return utils.buildResponse(200, response);
 }
 

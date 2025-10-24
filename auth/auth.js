@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
-function generateToken(userInfo) {
+function generateAccessToken(userInfo) {
   if (!userInfo) {
     return null;
   }
@@ -10,26 +11,19 @@ function generateToken(userInfo) {
   });
 }
 
-function verifyToken(username, token) {
-  return jwt.verify(token, process.env.JWT_SECRET, (error, response) => {
-    if (error) {
-      return {
-        verified: false,
-        message: "Invalid Token",
-      };
-    }
-    if (response.username !== username) {
-      return {
-        verified: false,
-        message: "invalid User",
-      };
-    }
-    return {
-      verified: true,
-      message: "verified",
-    };
-  });
+function generateRefreshToken() {
+  return crypto.randomBytes(40).toString("hex");
 }
 
-module.exports.generateToken = generateToken;
-module.exports.verifyToken = verifyToken;
+function verifyAccessToken(token) {
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    return { verified: true, payload: payload };
+  } catch (error) {
+    return { verified: false, message: error.message };
+  }
+}
+
+module.exports.generateAccessToken = generateAccessToken;
+module.exports.generateRefreshToken = generateRefreshToken;
+module.exports.verifyAccessToken = verifyAccessToken;
