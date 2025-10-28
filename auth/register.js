@@ -3,17 +3,27 @@ AWS.config.update({ region: "us-east-2" });
 const utils = require("../utils/buildResponse");
 const bcrypt = require("bcryptjs");
 const { login } = require("./login");
+const { createAccount } = require("../account/createAccount");
 
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
 let userTable = "CanvasUsers";
 
 async function register(userInfo) {
-  const name = userInfo.name;
+  const firstName = userInfo.firstName;
+  const lastName = userInfo.lastName;
   const email = userInfo.email;
   const username = userInfo.username;
   const password = userInfo.password;
 
-  if (!username || !password || !email || !password || !name || !userTable) {
+  if (
+    !username ||
+    !password ||
+    !email ||
+    !password ||
+    !firstName ||
+    !lastName ||
+    !userTable
+  ) {
     return utils.buildResponse(401, {
       message: "All fields are required",
     });
@@ -28,9 +38,10 @@ async function register(userInfo) {
 
   const encryptedPW = bcrypt.hashSync(password.trim(), 10);
   const user = {
-    name: name,
+    firstName: firstName,
+    lastName: lastName,
     email: email,
-    username: username.toLowerCase().trim(),
+    username: username.trim(),
     password: encryptedPW,
   };
 
@@ -38,6 +49,17 @@ async function register(userInfo) {
   if (!savedUserResponse) {
     return utils.buildResponse(503, {
       message: "Server Error. Please try again later.",
+    });
+  }
+
+  var result = await createAccount(
+    { username },
+    { email, firstName, lastName }
+  );
+
+  if (result.statusCode !== 201) {
+    return utils.buildResponse(503, {
+      message: "Error creating user account. Please try again later.",
     });
   }
 
