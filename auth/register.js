@@ -46,6 +46,7 @@ async function register(userInfo) {
     password: userInfo.password,
     table: userTable,
   };
+
   return await login(loginRequest);
 }
 
