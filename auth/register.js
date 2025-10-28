@@ -1,6 +1,6 @@
 const AWS = require("aws-sdk");
 AWS.config.update({ region: "us-east-2" });
-const utils = require("./utils/buildResponse");
+const utils = require("../utils/buildResponse");
 const bcrypt = require("bcryptjs");
 const { login } = require("./login");
 
@@ -10,7 +10,6 @@ let userTable = "CanvasUsers";
 async function register(userInfo) {
   const name = userInfo.name;
   const email = userInfo.email;
-  const authorized = userInfo.authorized;
   const username = userInfo.username;
   const password = userInfo.password;
 
@@ -31,7 +30,6 @@ async function register(userInfo) {
   const user = {
     name: name,
     email: email,
-    authorized: authorized,
     username: username.toLowerCase().trim(),
     password: encryptedPW,
   };
@@ -48,7 +46,6 @@ async function register(userInfo) {
     password: userInfo.password,
     table: userTable,
   };
-
   return await login(loginRequest);
 }
 

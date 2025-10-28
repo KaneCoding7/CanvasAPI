@@ -1,4 +1,4 @@
-const utils = require("./utils/buildResponse");
+const utils = require("../utils/buildResponse");
 const { verifyAccessToken } = require("./auth");
 
 function verify(requestBody) {

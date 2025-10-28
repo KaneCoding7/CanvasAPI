@@ -1,6 +1,6 @@
 const AWS = require("aws-sdk");
 AWS.config.update({ region: "us-east-2" });
-const utils = require("./utils/buildResponse");
+const utils = require("../utils/buildResponse");
 const bcrypt = require("bcryptjs");
 const { generateAccessToken, generateRefreshToken } = require("./auth");
 

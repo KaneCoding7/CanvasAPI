@@ -1,6 +1,6 @@
 const AWS = require("aws-sdk");
 AWS.config.update({ region: "us-east-2" });
-const utils = require("./utils/buildResponse");
+const utils = require("../utils/buildResponse");
 const { generateAccessToken } = require("./auth");
 
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
