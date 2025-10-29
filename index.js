@@ -6,6 +6,8 @@ const utils = require("./utils/buildResponse");
 const { authenticate } = require("./utils/authenticate");
 const { createAccount } = require("./account/createAccount");
 const { getAccount } = require("./account/getAccount");
+const { updateAccount } = require("./account/updateAccount");
+const { deleteAccount } = require("./account/deleteAccount");
 
 const healthPath = "/health";
 const loginPath = "/auth/login";
@@ -60,6 +62,12 @@ exports.handler = async (event) => {
 
     case evaluatePath(event, "GET", userAccountPath):
       return await getAccount(requestedUsername, loggedInUser);
+
+    case evaluatePath(event, "PATCH", userAccountPath):
+      return await updateAccount(requestedUsername, body, loggedInUser);
+
+    case evaluatePath(event, "DELETE", userAccountPath):
+      return await deleteAccount(requestedUsername, loggedInUser);
   }
 
   return utils.buildResponse(404, "Not Found");
