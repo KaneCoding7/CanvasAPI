@@ -8,6 +8,7 @@ const { createAccount } = require("./account/createAccount");
 const { getAccount } = require("./account/getAccount");
 const { updateAccount } = require("./account/updateAccount");
 const { deleteAccount } = require("./account/deleteAccount");
+const { createBoxerProfile } = require("./boxerProfile/createBoxerProfile");
 
 const healthPath = "/health";
 const loginPath = "/auth/login";
@@ -16,6 +17,7 @@ const verifyPath = "/auth/verify";
 const refreshPath = "/auth/refresh";
 const accountPath = "/account";
 const userAccountPath = "/account/{username}";
+const boxerProfile = "/boxerProfile";
 
 exports.handler = async (event) => {
   console.log("Requested Event:", event);
@@ -68,6 +70,10 @@ exports.handler = async (event) => {
 
     case evaluatePath(event, "DELETE", userAccountPath):
       return await deleteAccount(requestedUsername, loggedInUser);
+
+    // Boxer Profile Routes
+    case evaluatePath(event, "POST", boxerProfile):
+      return await createBoxerProfile(loggedInUser, body);
   }
 
   return utils.buildResponse(404, "Not Found");
