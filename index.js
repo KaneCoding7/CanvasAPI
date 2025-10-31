@@ -9,6 +9,9 @@ const { getAccount } = require("./account/getAccount");
 const { updateAccount } = require("./account/updateAccount");
 const { deleteAccount } = require("./account/deleteAccount");
 const { createBoxerProfile } = require("./boxerProfile/createBoxerProfile");
+const { getBoxerProfile } = require("./boxerProfile/getBoxerProfile");
+const { updateBoxerProfile } = require("./boxerProfile/updateBoxerProfile");
+const { deleteBoxerProfile } = require("./boxerProfile/deleteBoxerProfile");
 
 const healthPath = "/health";
 const loginPath = "/auth/login";
@@ -18,6 +21,7 @@ const refreshPath = "/auth/refresh";
 const accountPath = "/account";
 const userAccountPath = "/account/{username}";
 const boxerProfile = "/boxerProfile";
+const userBoxerProfile = "/boxerProfile/{username}";
 
 exports.handler = async (event) => {
   console.log("Requested Event:", event);
@@ -74,6 +78,15 @@ exports.handler = async (event) => {
     // Boxer Profile Routes
     case evaluatePath(event, "POST", boxerProfile):
       return await createBoxerProfile(loggedInUser, body);
+
+    case evaluatePath(event, "GET", userBoxerProfile):
+      return await getBoxerProfile(requestedUsername, loggedInUser);
+
+    case evaluatePath(event, "PATCH", userBoxerProfile):
+      return await updateBoxerProfile(requestedUsername, loggedInUser, body);
+
+    case evaluatePath(event, "DELETE", userBoxerProfile):
+      return await deleteBoxerProfile(requestedUsername, loggedInUser);
   }
 
   return utils.buildResponse(404, "Not Found");
