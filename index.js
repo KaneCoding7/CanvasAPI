@@ -26,6 +26,14 @@ const { getAllEvents } = require("./event/getAllEvents");
 const { getEvent } = require("./event/getEvent");
 const { updateEvent } = require("./event/updateEvent");
 const { deleteEvent } = require("./event/deleteEvent");
+const { createBout } = require("./bout/createBout");
+const { getBout } = require("./bout/getBout");
+const { updateBout } = require("./bout/updateBout");
+const { deleteBout } = require("./bout/deleteBout");
+const { createRefProfile } = require("./refProfile/createRefProfile");
+const { getRefProfile } = require("./refProfile/getRefProfile");
+const { updateRefProfile } = require("./refProfile/updateRefProfile");
+const { deleteRefProfile } = require("./refProfile/deleteRefProfile");
 
 const healthPath = "/health";
 const loginPath = "/auth/login";
@@ -42,6 +50,10 @@ const gymPath = "/gym";
 const idGymPath = "/gym/{gymId}";
 const eventPath = "/event";
 const idEventPath = "/event/{eventId}";
+const boutPath = "/bout";
+const idBoutPath = "/bout/{boutId}";
+const refProfilePath = "/refProfile";
+const idRefProfilePath = "/refProfile/{username}";
 
 exports.handler = async (event) => {
   console.log("Requested Event:", event);
@@ -156,6 +168,32 @@ exports.handler = async (event) => {
 
     case evaluatePath(event, "DELETE", idEventPath):
       return await deleteEvent(event.pathParameters?.eventId, loggedInUser);
+
+    // Bout Routes
+    case evaluatePath(event, "POST", boutPath):
+      return await createBout(loggedInUser, body);
+
+    case evaluatePath(event, "GET", idBoutPath):
+      return await getBout(event.pathParameters?.boutId);
+
+    case evaluatePath(event, "PATCH", idBoutPath):
+      return await updateBout(event.pathParameters?.boutId, body, loggedInUser);
+
+    case evaluatePath(event, "DELETE", idBoutPath):
+      return await deleteBout(event.pathParameters?.boutId, loggedInUser);
+
+    // Ref Profile Routes
+    case evaluatePath(event, "POST", refProfilePath):
+      return await createRefProfile(loggedInUser, body);
+
+    case evaluatePath(event, "GET", idRefProfilePath):
+      return await getRefProfile(requestedUsername, loggedInUser);
+
+    case evaluatePath(event, "PATCH", idRefProfilePath):
+      return await updateRefProfile(requestedUsername, body, loggedInUser);
+
+    case evaluatePath(event, "DELETE", idRefProfilePath):
+      return await deleteRefProfile(requestedUsername, loggedInUser);
   }
 
   return utils.buildResponse(404, "Not Found");
