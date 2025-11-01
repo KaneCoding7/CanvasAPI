@@ -12,6 +12,20 @@ const { createBoxerProfile } = require("./boxerProfile/createBoxerProfile");
 const { getBoxerProfile } = require("./boxerProfile/getBoxerProfile");
 const { updateBoxerProfile } = require("./boxerProfile/updateBoxerProfile");
 const { deleteBoxerProfile } = require("./boxerProfile/deleteBoxerProfile");
+const { createCoachProfile } = require("./coachProfile/createCoachProfile");
+const { getCoachProfile } = require("./coachProfile/getCoachProfile");
+const { updateCoachProfile } = require("./coachProfile/updateCoachProfile");
+const { deleteCoachProfile } = require("./coachProfile/deleteCoachProfile");
+const { createGym } = require("./gym/createGym");
+const { getGym } = require("./gym/getGym");
+const { updateGym } = require("./gym/updateGym");
+const { deleteGym } = require("./gym/deleteGym");
+const { getAllGyms } = require("./gym/getAllGyms");
+const { createEvent } = require("./event/createEvent");
+const { getAllEvents } = require("./event/getAllEvents");
+const { getEvent } = require("./event/getEvent");
+const { updateEvent } = require("./event/updateEvent");
+const { deleteEvent } = require("./event/deleteEvent");
 
 const healthPath = "/health";
 const loginPath = "/auth/login";
@@ -22,6 +36,12 @@ const accountPath = "/account";
 const userAccountPath = "/account/{username}";
 const boxerProfile = "/boxerProfile";
 const userBoxerProfile = "/boxerProfile/{username}";
+const coachProfilePath = "/coachProfile";
+const userCoachProfilePath = "/coachProfile/{username}";
+const gymPath = "/gym";
+const idGymPath = "/gym/{gymId}";
+const eventPath = "/event";
+const idEventPath = "/event/{eventId}";
 
 exports.handler = async (event) => {
   console.log("Requested Event:", event);
@@ -87,6 +107,55 @@ exports.handler = async (event) => {
 
     case evaluatePath(event, "DELETE", userBoxerProfile):
       return await deleteBoxerProfile(requestedUsername, loggedInUser);
+
+    // Boxer Profile Routes
+    case evaluatePath(event, "POST", coachProfilePath):
+      return await createCoachProfile(body, loggedInUser);
+
+    case evaluatePath(event, "GET", userCoachProfilePath):
+      return await getCoachProfile(requestedUsername, loggedInUser);
+
+    case evaluatePath(event, "PATCH", userCoachProfilePath):
+      return await updateCoachProfile(requestedUsername, loggedInUser, body);
+
+    case evaluatePath(event, "DELETE", userCoachProfilePath):
+      return await deleteCoachProfile(requestedUsername, loggedInUser);
+
+    // Gym Routes
+    case evaluatePath(event, "POST", gymPath):
+      return await createGym(loggedInUser, body);
+
+    case evaluatePath(event, "GET", gymPath):
+      return await getAllGyms();
+
+    case evaluatePath(event, "GET", idGymPath):
+      return await getGym(event.pathParameters?.gymId);
+
+    case evaluatePath(event, "PATCH", idGymPath):
+      return await updateGym(event.pathParameters?.gymId, body, loggedInUser);
+
+    case evaluatePath(event, "DELETE", idGymPath):
+      return await deleteGym(event.pathParameters?.gymId, loggedInUser);
+
+    // Event Routes
+    case evaluatePath(event, "POST", eventPath):
+      return await createEvent(loggedInUser, body);
+
+    case evaluatePath(event, "GET", eventPath):
+      return await getAllEvents();
+
+    case evaluatePath(event, "GET", idEventPath):
+      return await getEvent(event.pathParameters?.eventId);
+
+    case evaluatePath(event, "PATCH", idEventPath):
+      return await updateEvent(
+        event.pathParameters?.eventId,
+        body,
+        loggedInUser
+      );
+
+    case evaluatePath(event, "DELETE", idEventPath):
+      return await deleteEvent(event.pathParameters?.eventId, loggedInUser);
   }
 
   return utils.buildResponse(404, "Not Found");
