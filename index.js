@@ -1,8 +1,9 @@
+const utils = require("./utils/buildResponse");
 const { refresh } = require("./auth/refresh");
 const { login } = require("./auth/login");
 const { register } = require("./auth/register");
 const { verify } = require("./auth/verify");
-const utils = require("./utils/buildResponse");
+const { checkUsername } = require("./auth/checkUsername");
 const { authenticate } = require("./utils/authenticate");
 const { createAccount } = require("./account/createAccount");
 const { getAccount } = require("./account/getAccount");
@@ -40,6 +41,7 @@ const loginPath = "/auth/login";
 const registerPath = "/auth/register";
 const verifyPath = "/auth/verify";
 const refreshPath = "/auth/refresh";
+const checkUsernamePath = "/auth/checkUsername";
 const accountPath = "/account";
 const userAccountPath = "/account/{username}";
 const boxerProfile = "/boxerProfile";
@@ -79,6 +81,9 @@ exports.handler = async (event) => {
 
     case evaluatePath(event, "POST", refreshPath):
       return await refresh(body);
+
+    case evaluatePath(event, "POST", checkUsernamePath):
+      return await checkUsername(body);
   }
 
   const authResult = authenticate(event);
@@ -133,6 +138,19 @@ exports.handler = async (event) => {
     case evaluatePath(event, "DELETE", userCoachProfilePath):
       return await deleteCoachProfile(requestedUsername, loggedInUser);
 
+    // Ref Profile Routes
+    case evaluatePath(event, "POST", refProfilePath):
+      return await createRefProfile(loggedInUser, body);
+
+    case evaluatePath(event, "GET", idRefProfilePath):
+      return await getRefProfile(requestedUsername, loggedInUser);
+
+    case evaluatePath(event, "PATCH", idRefProfilePath):
+      return await updateRefProfile(requestedUsername, body, loggedInUser);
+
+    case evaluatePath(event, "DELETE", idRefProfilePath):
+      return await deleteRefProfile(requestedUsername, loggedInUser);
+
     // Gym Routes
     case evaluatePath(event, "POST", gymPath):
       return await createGym(loggedInUser, body);
@@ -181,19 +199,6 @@ exports.handler = async (event) => {
 
     case evaluatePath(event, "DELETE", idBoutPath):
       return await deleteBout(event.pathParameters?.boutId, loggedInUser);
-
-    // Ref Profile Routes
-    case evaluatePath(event, "POST", refProfilePath):
-      return await createRefProfile(loggedInUser, body);
-
-    case evaluatePath(event, "GET", idRefProfilePath):
-      return await getRefProfile(requestedUsername, loggedInUser);
-
-    case evaluatePath(event, "PATCH", idRefProfilePath):
-      return await updateRefProfile(requestedUsername, body, loggedInUser);
-
-    case evaluatePath(event, "DELETE", idRefProfilePath):
-      return await deleteRefProfile(requestedUsername, loggedInUser);
   }
 
   return utils.buildResponse(404, "Not Found");
