@@ -3,6 +3,8 @@ const { refresh } = require("./auth/refresh");
 const { login } = require("./auth/login");
 const { register } = require("./auth/register");
 const { verify } = require("./auth/verify");
+const { requestPasswordReset } = require("./auth/requestPasswordReset");
+const { resetPassword } = require("./auth/resetPassword");
 const { checkUsername } = require("./auth/checkUsername");
 const { authenticate } = require("./utils/authenticate");
 const { createAccount } = require("./account/createAccount");
@@ -42,6 +44,8 @@ const registerPath = "/auth/register";
 const verifyPath = "/auth/verify";
 const refreshPath = "/auth/refresh";
 const checkUsernamePath = "/auth/checkUsername";
+const requestPasswordResetPath = "/auth/requestPasswordReset";
+const resetPasswordPath = "/auth/resetPassword";
 const accountPath = "/account";
 const userAccountPath = "/account/{username}";
 const boxerProfile = "/boxerProfile";
@@ -84,6 +88,12 @@ exports.handler = async (event) => {
 
     case evaluatePath(event, "POST", checkUsernamePath):
       return await checkUsername(body);
+
+    case evaluatePath(event, "POST", requestPasswordResetPath):
+      return await requestPasswordReset(body);
+
+    case evaluatePath(event, "POST", resetPasswordPath):
+      return await resetPassword(body);
   }
 
   const authResult = authenticate(event);
