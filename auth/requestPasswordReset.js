@@ -9,7 +9,7 @@ const ses = new AWS.SES();
 const userTable = "CanvasUsers";
 const resetTokenTable = "CanvasPasswordResetTokens";
 const SENDER_EMAIL = "marcus.kane@chanesoftwaresolutions.com";
-const FRONTEND_URL = "http://localhost:3000/reset-password";
+const FRONTEND_URL = "http://localhost:3000/Login";
 const LOGO_URL = "https://chanesoftwaresolutions.com/Images/CLogo.png";
 
 async function requestPasswordReset(body) {
@@ -107,11 +107,9 @@ async function sendResetEmail(userEmail, token) {
     Message: {
       Subject: { Data: "Action Required: Reset Your Password" },
       Body: {
-        // We use 'Html' instead of 'Text'
         Html: {
           Data: htmlContent,
         },
-        // It is good practice to include Text as a fallback for old email clients
         Text: {
           Data: `Reset your password here: ${resetLink}`,
         },
