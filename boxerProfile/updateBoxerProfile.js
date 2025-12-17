@@ -1,9 +1,14 @@
 const AWS = require("aws-sdk");
 AWS.config.update({ region: "us-east-2" });
 const utils = require("../utils/buildResponse");
+const validStates = require("../utils/validStates");
 
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
 const boxerProfileTable = "CanvasBoxerProfiles";
+
+const normalizeState = (input) => {
+  return validStates.find((s) => s.toLowerCase() === input.toLowerCase());
+};
 
 async function updateBoxerProfile(requestedUsername, loggedInUser, body) {
   if (loggedInUser.username !== requestedUsername) {
@@ -12,7 +17,16 @@ async function updateBoxerProfile(requestedUsername, loggedInUser, body) {
     });
   }
 
-  const { weightClass, usaBoxingNumber, wins, losses, gymId } = body;
+  const {
+    weightClass,
+    usaBoxingNumber,
+    wins,
+    losses,
+    draws,
+    gymId,
+    state,
+    age,
+  } = body;
 
   const params = {
     TableName: boxerProfileTable,
@@ -40,21 +54,57 @@ async function updateBoxerProfile(requestedUsername, loggedInUser, body) {
   }
 
   if (wins !== undefined) {
+    if (typeof wins !== "number") {
+      return utils.buildResponse(400, { message: "Wins must be a number." });
+    }
     params.UpdateExpression += ", #w = :w";
     params.ExpressionAttributeNames["#w"] = "wins";
     params.ExpressionAttributeValues[":w"] = wins;
   }
 
   if (losses !== undefined) {
+    if (typeof losses !== "number") {
+      return utils.buildResponse(400, { message: "Losses must be a number." });
+    }
     params.UpdateExpression += ", #l = :l";
     params.ExpressionAttributeNames["#l"] = "losses";
     params.ExpressionAttributeValues[":l"] = losses;
+  }
+
+  if (draws !== undefined) {
+    if (typeof draws !== "number") {
+      return utils.buildResponse(400, { message: "Draws must be a number." });
+    }
+    params.UpdateExpression += ", #d = :d";
+    params.ExpressionAttributeNames["#d"] = "draws";
+    params.ExpressionAttributeValues[":d"] = draws;
   }
 
   if (gymId !== undefined) {
     params.UpdateExpression += ", #gi = :gi";
     params.ExpressionAttributeNames["#gi"] = "gymId";
     params.ExpressionAttributeValues[":gi"] = gymId;
+  }
+
+  if (state !== undefined) {
+    const validStateName = normalizeState(state);
+    if (!validStateName) {
+      return utils.buildResponse(400, {
+        message: `Invalid state provided. Must be a full US state name (e.g., 'New York', 'California').`,
+      });
+    }
+    params.UpdateExpression += ", #st = :st";
+    params.ExpressionAttributeNames["#st"] = "state";
+    params.ExpressionAttributeValues[":st"] = validStateName;
+  }
+
+  if (age !== undefined) {
+    if (typeof age !== "number") {
+      return utils.buildResponse(400, { message: "Age must be a number." });
+    }
+    params.UpdateExpression += ", #ag = :ag";
+    params.ExpressionAttributeNames["#ag"] = "age";
+    params.ExpressionAttributeValues[":ag"] = age;
   }
 
   if (Object.keys(params.ExpressionAttributeValues).length === 1) {

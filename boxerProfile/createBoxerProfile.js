@@ -16,10 +16,11 @@ async function createBoxerProfile(loggedInUser, body) {
     });
   }
 
-  const { weightClass, usaBoxingNumber } = body;
-  if (!weightClass || !usaBoxingNumber) {
+  const { weightClass, usaBoxingNumber, age, state } = body;
+
+  if (!weightClass || !usaBoxingNumber || !age || !state) {
     return utils.buildResponse(400, {
-      message: "weightClass and usaBoxingNumber are required.",
+      message: "weightClass, usaBoxingNumber, age, and state are required.",
     });
   }
 
