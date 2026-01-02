@@ -12,7 +12,7 @@ async function updateAccount(requestedUsername, body, loggedInUser) {
     });
   }
 
-  const { firstName, lastName, email, bio, phone } = body;
+  const { firstName, lastName, email, bio, phone, profilePicUrl } = body;
 
   const params = {
     TableName: accountTable,
@@ -55,6 +55,12 @@ async function updateAccount(requestedUsername, body, loggedInUser) {
     params.UpdateExpression += ", #ph = :ph";
     params.ExpressionAttributeNames["#ph"] = "phone";
     params.ExpressionAttributeValues[":ph"] = phone;
+  }
+
+  if (profilePicUrl !== undefined) {
+    params.UpdateExpression += ", #ppu = :ppu";
+    params.ExpressionAttributeNames["#ppu"] = "profilePicUrl";
+    params.ExpressionAttributeValues[":ppu"] = profilePicUrl;
   }
 
   if (Object.keys(params.ExpressionAttributeValues).length === 1) {
